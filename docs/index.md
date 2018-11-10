@@ -4,12 +4,14 @@
 体裁を気にせずに台本を書いて、それをマスターデータとして、以下のことに使いたい。
 - 印刷用、ビューア用などにフォーマットする際のソースにする。
 - 香盤表の自動生成。
-- バージョン管理して差分を見れるようにする。
+- バージョン管理してテキストで差分を見れるようにする。
 
 ## 条件
 - テキストエディタで編集できること。
 - テキストエディタ上でそこそこ台本っぽく見えること。
 - プログラムで処理できる構造になっていること。
+    - 人物名の確実な抽出/検索。
+    - セリフのない人物を香盤表に出すためのメタデータ。
 - エディタによってはシンタックスハイライトやプレビューができること。
     - カスタムで Extension を開発できるなら、しても良い。
 
@@ -52,3 +54,12 @@
 
     [Fountain](https://fountain.io/) の [記法](https://fountain.io/syntax) は基本的には英語向けだが、工夫すれば日本語にも使えるかも知れない。  
     [Atom](https://atom.io/packages/fountain) や [Sublime Text](http://www.candlerblog.com/2012/09/10/fountain-for-sublime-text/) といったエディタが対応しているらしい。
+
+    - 各エディタでのシンタックスハイライト
+    
+    プレビューしたければ、日本語向けの Extension を開発する必要がありそう。
+
+### エディタ
+- __Visual Studio Code__
+    - [Visual Studio Code](https://code.visualstudio.com/) - 公式サイト
+    - [Extending Visual Studio Code](https://code.visualstudio.com/docs/extensions/overview) - Extension の自作について (→ [翻訳中](vscode_extensions/overview.md))
