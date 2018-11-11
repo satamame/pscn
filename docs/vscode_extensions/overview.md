@@ -65,7 +65,7 @@ debugger extensions の作成についての詳細は、[こちら](https://code
 <a id="_writing-an-extension"></a>
 ## Writing an Extension
 
-Yeoman [extension generator](https://code.visualstudio.com/docs/extensions/yocode) を使えば、基本的な extension のプロジェクトを簡単に作る事ができます。まずはプロジェクトを作ってみると良いでしょう。サンプルは[こちら](https://code.visualstudio.com/docs/extensions/samples)で見る事ができます。
+Yeoman [extension generator](yocode.md) を使えば、基本的な extension のプロジェクトを簡単に作る事ができます。まずはプロジェクトを作ってみると良いでしょう。サンプルは[こちら](https://code.visualstudio.com/docs/extensions/samples)で見る事ができます。
 
 extension は、TypeScript か JavaScript で書かれます。[開発、ビルド、実行、テスト、デバッグ](https://code.visualstudio.com/docs/extensions/developing-extensions)のすべてを、VS Code 上で行う事ができます。
 
