@@ -85,3 +85,18 @@ generator は以下の事をします。
 - extension identifier を聞いてきます。入力した名前でサブフォルダが作られます。
 
 できた extension のフォルダを VS Code で開いて、snippets を試すために extension を実行しましょう。`vsc-extension-quickstart.md` には、先へ進むためのガイドが書いてあります。
+
+<a id="_new-extension-pack"></a>
+### New Extension Pack
+
+(翻訳中)
+
+<a id="_your-extensions-folder"></a>
+## Your extensions folder
+
+(翻訳中)
+
+<a id="_next-steps"></a>
+## Next steps
+
+(翻訳中)
