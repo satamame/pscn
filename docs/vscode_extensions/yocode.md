@@ -1,5 +1,5 @@
 # Yo Code - Extension Generator
-([このページ](https://code.visualstudio.com/docs/extensions/yocode)を勝手に翻訳したものです。2018-11-10)
+([このページ](https://code.visualstudio.com/docs/extensions/yocode)を勝手に翻訳したものです。2018-11-15)
 
 VS Code extension を作成するには、私たちが用意した [Yeoman generator](https://github.com/Microsoft/vscode-generator-code) をお使いください。
 
