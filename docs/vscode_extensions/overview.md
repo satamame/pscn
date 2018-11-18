@@ -28,7 +28,7 @@ extension は以下の機能を利用可能です。
 
 extension の基本をひととおり学ぶための、2つのチュートリアルをご用意しました。
 
-1. [__Hello World__](https://code.visualstudio.com/docs/extensions/example-hello-world) - 簡単な extension を作って、フォルダ構成や manifest について理解しましょう。activation の仕組み、実行とデバッグ、ローカルへのインストールについても学びます。
+1. [__Hello World__](example-hello-world.md) - 簡単な extension を作って、フォルダ構成や manifest について理解しましょう。activation の仕組み、実行とデバッグ、ローカルへのインストールについても学びます。
 1. [__Word Count__](https://code.visualstudio.com/docs/extensions/example-word-count) - ファイルタイプに応じた activation、ステータスバーの更新、テキストが変更された時の処理、ファイルを閉じた時に extension を終了する方法について学びます。
 
 さらに [Extensibility Principles and Patterns](https://code.visualstudio.com/docs/extensionAPI/patterns-and-principles) では、extensibility API のあちこちで使われているプログラミング・パターンについて説明しています。
@@ -82,6 +82,6 @@ VS Code の機能に関する多くのアイデアは、本体の一部として
 <a id="_next-steps"></a>
 ## Next steps
 
-- [Your First Extension](https://code.visualstudio.com/docs/extensions/example-hello-world) - シンプルな Hello World extension を作ってみましょう。
+- [Your First Extension](example-hello-world.md) - シンプルな Hello World extension を作ってみましょう。
 - [Extension API](https://code.visualstudio.com/docs/extensionAPI/overview) - VS Code extensibility API について学びましょう。
 - [Extension Examples](https://code.visualstudio.com/docs/extensions/samples) - extension のサンプル一覧です。自分で build してみる事もできます。
