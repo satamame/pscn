@@ -62,4 +62,4 @@
 ### エディタ
 - __Visual Studio Code__
     - [Visual Studio Code](https://code.visualstudio.com/) - 公式サイト
-    - [Extending Visual Studio Code](https://code.visualstudio.com/docs/extensions/overview) - Extension の自作について (→ [翻訳中](vscode_extensions/overview.md))
+    - [Extending Visual Studio Code](https://code.visualstudio.com/docs/extensions/overview) - Extension の自作について (→ [翻訳中](vscode_extensions/))

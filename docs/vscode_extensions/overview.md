@@ -1,5 +1,5 @@
 # Extending Visual Studio Code
-([このページ](https://code.visualstudio.com/docs/extensions/overview)を勝手に翻訳したものです。2018-11-10)
+([こちらのページ](https://code.visualstudio.com/docs/extensions/overview)を自分流に翻訳したものです。2018-11-10)
 
 ここでは、VS Code の拡張性と、はじめての extension を短時間で作る方法について、ご説明します。拡張性の設計に対する私達のアプローチについては、[こちら](https://code.visualstudio.com/docs/extensionAPI/patterns-and-principles)をご覧ください。
 

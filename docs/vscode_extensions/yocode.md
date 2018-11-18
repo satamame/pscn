@@ -1,5 +1,5 @@
 # Yo Code - Extension Generator
-([このページ](https://code.visualstudio.com/docs/extensions/yocode)を勝手に翻訳したものです。2018-11-15)
+([こちらのページ](https://code.visualstudio.com/docs/extensions/yocode)を自分流に翻訳したものです。2018-11-15)
 
 VS Code extension を作成するには、私たちが用意した [Yeoman generator](https://github.com/Microsoft/vscode-generator-code) をお使いください。
 
@@ -122,7 +122,7 @@ VS Code を起動するたびに読み込ませたい extension については�
 
 ### Windows 10 で、`yo code` generator がカーソルキーに反応しません。
 
-`Yo` コマンドで Yeoman generator を起動してから、`Code` generator を選択してみてください。
+まず `Yo` コマンドで Yeoman generator を起動してから、`Code` generator を選択してみてください。
 
 ![yo workaround](https://code.visualstudio.com/assets/docs/extensions/yocode/yo-workaround.png)
 
