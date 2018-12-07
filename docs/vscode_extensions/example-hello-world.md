@@ -165,7 +165,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 > 注: `package.json` の `contributes` セクションは、Command Palette にエントリを追加します。extension.ts/.js に書かれたコードが、`"extension.sayHello"` の実装になります。
 
-> 注: TypeScript extension であっても、`out/extension.js` が生成されます。VS Code はそれをロードして実行します。
+> 注: TypeScript extension の場合、`out/extension.js` が生成されます。VS Code はそれをロードして実行します。
 
 <a id="_miscellaneous-files"></a>
 ### Miscellaneous files
