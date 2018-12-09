@@ -1,12 +1,12 @@
 # Example - Hello World
-([こちらのページ](https://code.visualstudio.com/docs/extensions/example-hello-world)を自分流に翻訳したものです。2018-12-08)
+([こちらのページ](https://code.visualstudio.com/docs/extensions/example-hello-world)を自分流に翻訳したものです。2018-12-09)
 
 <a id="_your-first-extension"></a>
 ## Your first extension
 
 ここでは初めての方を対象に、Visual Studio Code extension ("Hello World") を作る過程をお見せします。また、VS Code の拡張性の基本的なコンセプトについてもご説明します。
 
-これから作る extension は、"Hello World" というテキトーな文字列を表示するコマンドを VS Code に追加するものです。後半では、VS Code editor から選択中のテキストを取得してみます。
+これから作る extension は、"Hello World" というテキトーな文字列を表示するコマンドを VS Code に追加するものです。後半では、VS Code editor から選択中のテキストに関する情報を取得してみます。
 
 <a id="_prerequisites"></a>
 ## Prerequisites
@@ -119,7 +119,7 @@ EXAMPLE TYPESCRIPT EXTENSION MANIFEST
    }
 }
 ```
-> 注: JavaScript extension の場合、コンパイルする必要がないので、`scripts` フィールドは不要です。
+> __注:__ JavaScript extension の場合、コンパイルする必要がないので、`scripts` フィールドは不要です。
 
 上の `package.json` は、この extension について以下のことを言っています。
 
@@ -127,13 +127,13 @@ EXAMPLE TYPESCRIPT EXTENSION MANIFEST
 - `"extension.sayHello"` コマンドが実行された時に、自身がロードされるようにします (_activationEvents_)。
 - `"./out/extension.js"` に、_main_ JavaScript code があります。
 
-> 注: VS Code は、起動時に extension のコードをロードしません。extension がどんな条件でロードされるかは、[`activationEvents`](https://code.visualstudio.com/docs/extensionAPI/activation-events) プロパティで設定されます。
+> __注:__ VS Code は、起動時に extension のコードをロードしません。extension がどんな条件でロードされるかは、[`activationEvents`](https://code.visualstudio.com/docs/extensionAPI/activation-events) プロパティで設定されます。
 
 <a id="_generated-code"></a>
 ### Generated code
 
 生成されたコードは、`extension.ts` の中です (JaveScript extension の場合は `extension.js` の中)。
-```typescript
+```TypeScript
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
@@ -163,29 +163,103 @@ export function activate(context: vscode.ExtensionContext) {
 - もし extension が OS のリソースを使用するなら (プロセスを生成するなど)、extension はその main file から `deactivate()` 関数を export する事ができます。これは後片付けをするための関数で、VS Code の終了時にも呼び出されます。
 - 今作った extension は `vscode` API を import し、コマンドを登録し、関数を `"extension.sayHello"` コマンドに関連付けます。コマンドは "Hello world" message を VS Code に表示するよう実装されています。
 
-> 注: `package.json` の `contributes` セクションは、Command Palette にエントリを追加します。extension.ts/.js に書かれたコードが、`"extension.sayHello"` の実装になります。
+> __注:__ `package.json` の `contributes` セクションは、Command Palette にエントリを追加します。extension.ts/.js に書かれたコードが、`"extension.sayHello"` の実装になります。
 
-> 注: TypeScript extension の場合、`out/extension.js` が生成されます。VS Code はそれをロードして実行します。
+> __注:__ TypeScript extension の場合、`out/extension.js` が生成されます。VS Code はそれをロードして実行します。
 
 <a id="_miscellaneous-files"></a>
 ### Miscellaneous files
 
-__(翻訳中)__
+- `.vscode/launch.json` は、VS Code を Extension Development mode で起動するようにできます。さらに、`.vscode/tasks.json` で定義されているタスクの中から `preLaunchTask` を指定して、TypeScript compiler を実行する事もできます。
+- `.vscode/settings.json` は、デフォルトで `out` フォルダを除外します。これを変更することで、どのファイルタイプを無視するか選ぶことができます。
+- `.gitignore` - Git 用の .gitignore です。
+- [`.vscodeignore`](https://code.visualstudio.com/docs/extensions/publish-extension#_advanced-usage) - Extension を publish する時に、含めたくないファイルを指定をします。
+- `README.md` - この extension についての説明を書きます。
+- `vsc-extension-quickstart.md` - 開発者向けの Quick Start guide です。
+- `test/extension.test.ts` - この extension のための unit test を書きます。VS Code API に対して (訳者注: 原文は "against the VS Code API") テストを走らせます ([Testing Your Extension](https://code.visualstudio.com/docs/extensions/testing-extensions) をご覧ください)。
 
+<a id="_extension-activation"></a>
 ## Extension activation
-__(翻訳中)__
 
+ここまで、extension に含まれるファイルについて見てきました。ここからは、extension をアクティベートする方法について見ていきましょう。
+
+- extension development instance は、extension を見つけると、その中の `package.json` を読みにいきます。
+- その後 `Ctrl+Shift+P` を押すと、以下のことが起こります。
+- Command Palette が開いて、登録されたコマンドが表示されます。
+- リストの中に `"Hello World"` コマンドがあるはずです。`package.json` で定義したからです。
+- `"Hello World"` コマンドを選択すると…
+- `"extension.sayHello"` が実行されます。具体的には以下のことが起こります。
+    - `"onCommand:extension.sayHello"` という activation event が生成されます。
+    - このイベントを `activationEvents` に定義している、すべての extension がアクティベートされます (訳者注: 以下は各 extension につき一度だけ実行される)。
+        - `./out/extension.js` が JavaScript VM にロードされます。
+        - VS Code は、エクスポートされた `activate()` 関数を見つけて、それを実行します。
+        - `"extension.sayHello"` コマンドが登録され、コマンドに対する実装 (そのコマンドが何をするのか) が関連付けられます。
+- コマンド (`"extension.sayHello"`) の実装 (であるところの関数) が実行されます。
+- "Hello World" というメッセージが表示されます。
+
+<a id="_debugging-your-extension"></a>
 ## Debugging your extension
-__(翻訳中)__
 
+コマンドの中にブレークポイントをセットして、Extension Development VS Code instance で `"Hello world"` を実行してみましょう。
+
+![Debugging the extension](https://code.visualstudio.com/assets/docs/extensions/example-hello-world/hitbp.png)
+
+> __注:__ TypeScript extensions の場合、VS Code は `out/extension.js` をロードして実行しますが、デバッグはオリジナルの TypeScript code 上で行うことが可能です。これは VS Code が `out/extension.js.map` を生成し、デバッグ時に参照しているためです。
+
+> __Tip:__ コード内で、Debug Console に log を出すことができます。
+
+Extension の開発環境について詳しく知りたければ、[こちら](https://code.visualstudio.com/docs/extensions/developing-extensions) をご覧ください。
+
+<a id="_a-simple-change"></a>
 ## A simple change
-__(翻訳中)__
 
+`extension.ts` (または `extension.js`) を変更してみましょう。`extension.sayHello` を変更して、エディタ上で選択中のテキストの文字数を表示するようにしてみましょう。
+
+```TypeScript
+    let disposable = vscode.commands.registerCommand('extension.sayHello', () => {
+        // The code you place here will be executed every time your command is executed
+
+        let editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return; // No open text editor
+        }
+
+        let selection = editor.selection;
+        let text = editor.document.getText(selection);
+
+        // Display a message box to the user
+        vscode.window.showInformationMessage('Selected characters: ' + text.length);
+    });
+```
+
+> __Tip:__ Extension のソースコードを変更したら、__Extension Development Host__ インスタンスを再起動します。再起動するには、__Extension Development Host__ インスタンスで `Ctrl+R` (macOS: `Cmd+R`) を押すか、プライマリの VS Code インスタンスの上の方にある __Restart__ ボタンを押します。
+
+ファイルを作成し (__File__ > __New File__)、テキストを入力して選択してください。__Hello World__ コマンドを実行すると、選択中のテキストの文字数が出力されるはずです。
+
+![Running the modified extension](https://code.visualstudio.com/assets/docs/extensions/example-hello-world/selection-length.png)
+
+<a id="_installing-your-extension-locally"></a>
 ## Installing your extension locally
-__(翻訳中)__
 
+ここまでで作った extension は、Extension Development instance という特殊なインスタンスでのみ実行可能です。これを VS Code のすべてのインスタンスで実行可能にするには、ローカルの extensions フォルダの中に新しくフォルダを作って、そこへコピーします。
+
+- Windows: `%USERPROFILE%\.vscode\extensions`
+- macOS/Linux: `$HOME/.vscode/extensions`
+
+<a id="_publishing-your-extension"></a>
 ## Publishing your extension
-__(翻訳中)__
 
+Extension を公開する方法については、[こちら](https://code.visualstudio.com/docs/extensions/publish-extension)をご覧ください。
+
+<a id="_next-steps"></a>
 ## Next steps
-__(翻訳中)__
+
+これで、ごく簡単な extension は作れるようになりました。もう少し凝った extension の例として、[Word Count Example](https://code.visualstudio.com/docs/extensions/example-word-count) では、特定の言語のみを対象とする方法や、エディタの内容が変更された時にイベントに反応する方法について、説明しています。
+
+Extension API に関する一般的な説明については、以下のページをご覧ください。
+
+- [Extension API Overview](https://code.visualstudio.com/docs/extensionAPI/overview) - VS Code の extensibility model 全般について。
+- [API Principles and Patterns](https://code.visualstudio.com/docs/extensionAPI/patterns-and-principles) - VS Code の拡張性を支える、ルールやパターンがあります。
+- [Contribution Points](https://code.visualstudio.com/docs/extensionAPI/extension-points) - VS Code の様々な contribution points について詳しく。
+- [Activation Events](https://code.visualstudio.com/docs/extensionAPI/activation-events) - VS Code の activation events のリファレンス。
+- [Additional Extension Examples](https://code.visualstudio.com/docs/extensions/samples) - extension のサンプルのリスト。
