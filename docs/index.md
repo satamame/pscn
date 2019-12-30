@@ -54,7 +54,7 @@
 
     [Fountain](https://fountain.io/) の [記法](https://fountain.io/syntax) は基本的には英語向けだが、工夫すれば日本語にも使えるかも知れない。  
     対応するエディタについては [こちら](https://fountain.io/apps) にまとまっている。  
-    VSCode 向けにも [Better Fountain](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain) という拡張機能がある。
+    VSCode 向けにも [Better Fountain](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain) という拡張機能がある。  
     日本語で使う場合の考察は [こちら](fountain/for_japanese.md) 。
 
 ### エディタ
