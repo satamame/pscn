@@ -53,11 +53,9 @@
 - __Fountain__
 
     [Fountain](https://fountain.io/) の [記法](https://fountain.io/syntax) は基本的には英語向けだが、工夫すれば日本語にも使えるかも知れない。  
-    [Atom](https://atom.io/packages/fountain) や [Sublime Text](http://www.candlerblog.com/2012/09/10/fountain-for-sublime-text/) といったエディタが対応しているらしい。
-
-    - 各エディタでのシンタックスハイライト
-    
-    プレビューしたければ、日本語向けの Extension を開発する必要がありそう。
+    対応するエディタについては [こちら](https://fountain.io/apps) にまとまっている。  
+    VSCode 向けにも [Better Fountain](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain) という拡張機能がある。
+    日本語で使う場合の考察は [こちら](fountain/for_japanese.md) 。
 
 ### エディタ
 - __Visual Studio Code__
