@@ -1,1 +1,5 @@
+*.venv
+*.vscode
 *.lnk
+script_samples/
+__pycache__/
