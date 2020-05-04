@@ -79,7 +79,7 @@ echo 形態素解析したい文字列 | jumanpp_v2 --config=..\..\..\..\model\j
 適当なディレクトリから以下を実行する。
 ```
 chcp 65001
-echo 形態素解析したい文字列 | jumanpp
+echo 形態素解析したい文字列| jumanpp
 ```
 
 ## Python から使う

@@ -8,8 +8,8 @@ class JumanPsc(Juman):
     JUMAN++ でエラーになる文字列を極力エラーにならないよう形態素解析する。
     '''
     
-    # 無効な文字列
-    invalid_lines = ['\x1a']
+    # 無効な文字
+    invalid_chars = ['\x1a']
     
     # 文末文字のパターン
     end_pattern = r'[。？?！!]'
@@ -18,9 +18,9 @@ class JumanPsc(Juman):
         '''形態素解析するメソッドのオーバーライド
         '''
         
-        # 無効な文字列だったら空にする。
-        if input_str in JumanPsc.invalid_lines:
-            input_str = ''
+        # 無効な文字を削除する。
+        for c in JumanPsc.invalid_chars:
+            input_str = input_str.replace(c, '')
         
         # 連続しない半角スペースを全角スペースにする
         input_str = re.sub(r'(?<!\s) (?!\s)', '　', input_str)
@@ -46,5 +46,5 @@ class JumanPsc(Juman):
                 s2 = input_str[matchObj.start() + 1:]
                 return self.juman_lines(s1) + self.juman_lines(s2)
         
-        # 分割処理しない (できない) 場合は JUMAN++ に渡す。
+        # 分割処理しない (できない) 場合は継承元に渡す。
         return super().juman_lines(input_str)
