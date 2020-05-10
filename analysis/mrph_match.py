@@ -16,15 +16,15 @@ class MrphMatch(object):
         
         self.mrphs = mrphs
     
-    def match(self, idx=0, conds=None):
+    def match(self, ptn=None, idx=0):
         '''形態素列の指定位置でパターンマッチングする
         
         Parameters
         ----------
+        ptn : list
+            マッチングに使うメソッドのリスト
         idx : int
             マッチングを開始する位置
-        conds : list
-            マッチングに使うメソッドのリスト
         
         Returns
         -------
@@ -32,8 +32,8 @@ class MrphMatch(object):
             マッチングの結果
         '''
         
-        if conds is None:
-            conds = []
+        if ptn is None:
+            ptn = []
         
         # 指定位置以降をマッチングの対象にする
         mrphs = self.mrphs[idx:]
@@ -42,7 +42,7 @@ class MrphMatch(object):
         matched_str = ''
         matched_count = 0
         
-        for cond in conds:
+        for cond in ptn:
             result = cond(mrphs)
             if result.matched:
                 matched_str += result.matched_str
@@ -66,7 +66,7 @@ class MrphMatch(object):
         mrphs : list
             マッチングの対象となる形態素列
         cond : function
-            マッチングをする関数
+            マッチングをするメソッド
         
         Returns
         -------
@@ -74,7 +74,7 @@ class MrphMatch(object):
             マッチングの結果
         '''
         
-        if cond(mrphs[0]):
+        if len(mrphs) > 0 and cond(mrphs[0]):
             return MrphMatchResult(True, mrphs[0].midasi, 1)
         else:
             return MrphMatchResult(False, '', 0)
@@ -88,7 +88,7 @@ class MrphMatch(object):
         mrphs : list
             マッチングの対象となる形態素列
         cond : function
-            マッチングをする関数
+            マッチングをするメソッド
         
         Returns
         -------
@@ -131,6 +131,12 @@ class MrphMatch(object):
         return cls.match_single(mrphs, lambda mrph: mrph.hinsi == '名詞')
     
     @classmethod
+    def match_nouns(cls, mrphs):
+        '''形態素列の先頭が1個以上の連続する名詞にマッチするか調べる
+        '''
+        return cls.match_repeat(mrphs, lambda mrph: mrph.hinsi == '名詞')
+    
+    @classmethod
     def match_left_corner_bracket(cls, mrphs):
         '''形態素列の先頭の1個が左鉤括弧にマッチするか調べる
         '''
@@ -149,7 +155,7 @@ class MrphMatchResult(object):
         matched : bool
             マッチしたか
         matched_str : str
-            マッチした部分の元の文字列
+            マッチした部分の元の文字列 (またはそれを全角にしたもの)
         matched_count : int
             マッチした部分の形態素の数
         '''
@@ -157,3 +163,39 @@ class MrphMatchResult(object):
         self.matched = matched
         self.matched_str = matched_str
         self.matched_count = matched_count
+
+
+# マッチングパターン集
+MRPH_MTCH_PTN = {
+    # (空白+) (名詞) "「"
+    '0001' : (
+        MrphMatch.match_spaces,
+        MrphMatch.match_noun,
+        MrphMatch.match_left_corner_bracket,
+    ),
+
+    # (名詞) "「"
+    '0002' : (
+        MrphMatch.match_noun,
+        MrphMatch.match_left_corner_bracket,
+    ),
+
+    # (名詞+) (空白)
+    '0003' : (
+        MrphMatch.match_nouns,
+        MrphMatch.match_space,
+    ),
+
+    # (名詞) (空白+)
+    '0004' : (
+        MrphMatch.match_noun,
+        MrphMatch.match_spaces,
+    ),
+
+    # (空白) (名詞) (空白+)
+    '0005' : (
+        MrphMatch.match_space,
+        MrphMatch.match_noun,
+        MrphMatch.match_spaces,
+    ),
+}

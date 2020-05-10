@@ -5,7 +5,7 @@
 import os
 import pandas as pd
 import openpyxl
-from pyknp import Juman
+from juman_psc import JumanPsc
 
 
 # 入力ディレクトリ
@@ -17,6 +17,9 @@ output_file = 'line_start_analysis'
 # 先頭から何単語まで解析するか
 word_count = 10
 
+# 相対パスを絶対パスに
+input_dir = os.path.join(os.path.dirname(__file__), input_dir)
+output_file = os.path.join(os.path.dirname(__file__), output_file)
 
 #%%
 def morph_line(line, word_count=0):
@@ -33,7 +36,7 @@ def morph_line(line, word_count=0):
         見出し, 原形, 品詞, 品詞細分類, 活用形
     '''
     
-    juman = Juman(jumanpp=False)
+    juman = JumanPsc()
     
     # 形態素解析
     result = juman.analysis(line).mrph_list()
@@ -84,20 +87,11 @@ def morph_file(file, word_count=0):
 
 
 #%%
-
-# file = 'line_start_samples/000001.txt'
-# for l in morph_file(file):
-#     print(l['line'])
-#     for m in l['mrph']:
-#         print(m)
-
-
-#%%
 # 解析済みのデータを溜めていくリスト
 lines = []
 
 # 入力ディレクトリの内容
-for entry in  os.scandir(path=input_dir):
+for entry in os.scandir(path=input_dir):
     # ファイルでなければスキップ
     if not entry.is_file():
         continue
