@@ -1,5 +1,6 @@
 import re
 from pyknp import Juman
+from juman_settings import *
 
 
 class JumanPsc(Juman):
@@ -13,6 +14,20 @@ class JumanPsc(Juman):
     
     # 文末文字のパターン
     end_pattern = r'[。？?！!]'
+    
+    def __init__(self, *args, **kwargs):
+        '''コンストラクタをオーバーライドして settings を反映する
+        '''
+        
+        if len(args) < 1 and 'command' not in kwargs.keys():
+            if JUMAN_COMMAND:
+                kwargs['command'] = JUMAN_COMMAND
+        
+        if len(args) < 5 and 'option' not in kwargs.keys():
+            if JUMAN_OPTION:
+                kwargs['option'] = JUMAN_OPTION
+        
+        super().__init__(*args, **kwargs)
     
     def juman_lines(self, input_str):
         '''形態素解析するメソッドのオーバーライド

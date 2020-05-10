@@ -17,12 +17,11 @@ input_file = 'line_start_samples/000001.txt'
 output_dir = 'line_start_features'
 
 #%%
-juman = JumanPsc(command='jumanpp_v2',
-    option='--config=C:\ProgramData\jumanpp\model\jumandic.conf')
+juman = JumanPsc()
 
 #%%
 line = '  　男「ようこそ皆さん、私の名前はジョニー。今日は私のリサイタルショーにおいで下さってありがとうございます。今宵、しばし皆様の時間を拝借して、私の歌をお聞きください。では、まずはこの歌から」'
-line = '  a    '
+# line = '    男  '
 
 mrphs = juman.analysis(line).mrph_list()
 
@@ -31,12 +30,16 @@ mrph_match = MrphMatch(mrphs)
 result = mrph_match.match(
     conds = [
         MrphMatch.match_spaces,
+        MrphMatch.match_noun,
+        MrphMatch.match_left_corner_bracket,
     ]
 )
 
-print(result.matched)
-print(result.matched_str)
-print(result.matched_count)
+print(f'マッチ判定: {result.matched}')
+print(f'マッチ範囲文字列: {result.matched_str}')
+print(f'マッチ範囲内形態素数: {result.matched_count}')
+if len(mrphs) >= result.matched_count:
+    print(f'後続単語: {mrphs[result.matched_count].midasi}')
 
 
 # %%

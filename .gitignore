@@ -1,5 +1,6 @@
 *.venv
 *.vscode
 *.lnk
+*.log
 script_samples/
 __pycache__/

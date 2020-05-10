@@ -8,14 +8,12 @@ from juman_psc import JumanPsc
 
 
 # 入力ディレクトリ
-input_dir = 'script_samples'
+input_dir = 'script_samples_2'
 
 # 出力ファイル
 log_file = 'morph_test.log'
 
-juman = JumanPsc(command='jumanpp_v2',
-    option='--config=C:\ProgramData\jumanpp\model\jumandic.conf')
-
+juman = JumanPsc()
 
 #%%
 def morph_file(file):
@@ -49,6 +47,7 @@ if os._exists(log_file):
 
 # 入力ディレクトリ内をループ
 for entry in  os.scandir(path=input_dir):
+    
     # ファイルでなければスキップ
     if not entry.is_file():
         continue

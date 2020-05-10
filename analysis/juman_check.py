@@ -7,13 +7,13 @@ from juman_psc import JumanPsc
 
 
 #%%
-juman_class = Juman
+# juman = Juman(command='jumanpp_v2',
+#     option='--config=C:\ProgramData\jumanpp\model\jumandic.conf')
 
-juman = juman_class(command='jumanpp_v2',
-    option='--config=C:\ProgramData\jumanpp\model\jumandic.conf')
+juman = JumanPsc()
 
 #%%
-s = '　っ'
+s = '「'
 
 print(f'{len(s.encode())} bytes.')
 
