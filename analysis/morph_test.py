@@ -46,7 +46,7 @@ if os._exists(log_file):
     os.remove(log_file)
 
 # 入力ディレクトリ内をループ
-for entry in  os.scandir(path=input_dir):
+for entry in os.scandir(path=input_dir):
     
     # ファイルでなければスキップ
     if not entry.is_file():

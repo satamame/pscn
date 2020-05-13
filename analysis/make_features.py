@@ -6,19 +6,22 @@ import os
 from juman_psc import JumanPsc
 from mrph_match import MrphMatch, MRPH_MTCH_PTN
 
-# 入力ディレクトリ (ディレクトリごと処理する場合)
-input_dir = 'line_start_samples'
-
-# 入力ファイル (ファイル単位で処理する場合)
-input_file = 'script_samples_2/000001.txt'
+# 入力ディレクトリ
+input_dir = 'script_samples_2'
 
 # 出力ディレクトリ
-output_dir = 'line_start_features'
+output_dir = 'script_features'
+
+# 特徴量を正規化するか
+normalize = False
+
+# パターンマッチングに使うパターン名
+ptn_ids = ('0001', '0002', '0003', '0004', '0005')
+
 
 #%%
 # 相対パスを絶対パスに
 input_dir = os.path.join(os.path.dirname(__file__), input_dir)
-input_file = os.path.join(os.path.dirname(__file__), input_file)
 output_dir = os.path.join(os.path.dirname(__file__), output_dir)
 
 juman = JumanPsc()
@@ -33,12 +36,11 @@ def params_in_line(line):
     mrph_match = MrphMatch(mrphs)
     
     # パターンマッチング
-    ptns = ('0001', '0002', '0003', '0004', '0005')
     # パラメタの初期値
     matched_str = ''
     succeeding_mrph = None
     
-    for ptn in ptns:
+    for ptn in ptn_ids:
         mrph_ptn = MRPH_MTCH_PTN[ptn]
         match_result = mrph_match.match(mrph_ptn)
         
@@ -93,9 +95,6 @@ def features_in_file(fname, normalize=False):
         特徴量の辞書の、行数分のリスト
     '''
     
-    # パターン名
-    ptns = ('0001', '0002', '0003', '0004', '0005')
-    
     # 行ごとの特徴量
     line_features = []
     # 行ごとのパラメタ
@@ -118,7 +117,7 @@ def features_in_file(fname, normalize=False):
             # パラメタのうち、そのまま特徴量となるものを、まずは追加
             
             # パターンマッチング
-            for ptn in ptns:
+            for ptn in ptn_ids:
                 feature[ptn] = 1 if param[ptn] else 0
             
             # パターンの後続単語がセリフっぽい記号か
@@ -140,7 +139,7 @@ def features_in_file(fname, normalize=False):
             # ファイル全体の集計用の辞書を更新する
             
             # パターンごとのマッチした行数
-            for ptn in [p for p in ptns if feature[p]]:
+            for ptn in [p for p in ptn_ids if feature[p]]:
                 if ptn in ptn_line_count.keys():
                     ptn_line_count[ptn] += 1
                 else:
@@ -167,7 +166,7 @@ def features_in_file(fname, normalize=False):
     for i, lf in enumerate(line_features):
         # この行と同じパターンにマッチした行数
         matched_ptn = ''
-        for ptn in ptns:
+        for ptn in ptn_ids:
             if lf[ptn] == 1:
                 matched_ptn = ptn
                 break
@@ -204,7 +203,41 @@ def features_in_file(fname, normalize=False):
 
 
 # %%
-file_features = features_in_file(input_file, normalize=True)
+# 出力ディレクトリがなければ作成
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 
+# 出力ディレクトリを空にする
+for entry in os.scandir(path=output_dir):
+    if entry.is_file:
+        os.remove(entry)
 
+# 特徴量の取り出し順
+ft_keys = ptn_ids + (   # パターンマッチング
+    'symbol_follows',   # パターンの後続単語がセリフっぽい記号か
+    'interj_follows',   # パターンの後続単語が感動詞か
+    'leading_spc',      # 行頭の空白文字の数
+    'ptn_line_count',   # この行と同じパターンにマッチした行数
+    'str_line_count',   # この行と同じ文字列にパターンマッチした行数
+    'spc_line_count',   # この行と行頭の空白の数が同じ行の数
+)
+
+#%%
+# 入力ディレクトリ内のファイルについて、特徴量を作成
+for entry in os.scandir(path=input_dir):
+    if not entry.is_file:
+        continue
+    
+    # 出力ファイル名
+    out_f = os.path.basename(entry).split('.', 1)[0]
+    with open(os.path.join(output_dir, out_f + '.csv'), 'w') as f:
+        for ft in features_in_file(entry, normalize=normalize):
+            # 特徴量から取り出し順に値を取り出したリスト
+            vals = [str(ft[k]) for k in ft_keys]
+            l = ', '.join(vals)
+            f.write(l + '\n')
+    
+    print(out_f)
+
+print('Done.')
 # %%

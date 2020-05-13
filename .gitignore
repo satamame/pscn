@@ -2,5 +2,6 @@
 *.vscode
 *.lnk
 *.log
-script_samples/
 __pycache__/
+script_samples/
+script_features/
