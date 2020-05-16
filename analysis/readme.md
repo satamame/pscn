@@ -34,17 +34,44 @@
 
 1. 台本のテキストファイルを `script_rawdata/` に入れておく。
 1. `morph_test.py` を実行する。
+1. エラーが出なかったら、すべてのファイルを `script_samples/` に移す。
 1. エラーが出たら、データまたはスクリプトを修正する。
-1. データのみ修正した場合
-    - エラーが出なかったファイルを `script_samples/` に移す。
-1. スクリプトを修正した場合
-    - `script_samples/` にあるファイルを `script_rawdata/` に戻す。
-1. すべてのファイルが `script_samples/` に入るまで2～5を繰り返す。
+    1. データのみ修正した場合
+        - エラーが出なかったファイルを `script_samples/` に移す。
+    1. スクリプトを修正した場合
+        - `script_samples/` にあるファイルを `script_rawdata/` に戻す。
+1. すべてのファイルが `script_samples/` に入るまで2～4を繰り返す。
 
 ## 特徴量の取り出し
 
 1. "台本データの準備" の手順を実施して、台本データが `script_samples/` にあるようにする。
 1. `make_features.py` を実行する。
+1, 各台本に対応する特徴量ファイルが、`script_features/` に作成される。
 
 ## 教師データの準備
 
+教師データは、台本の各行の先頭に「行の種類」を付加したテキストファイルです。  
+行頭に「行の種類」+ \t を記述します。  
+「行の種類」だけでも良いです (\t 以降は無視されるという仕様)。
+
+1. 教師データは、`script_training/` に入れておく。
+1. 教師データに対応する特徴量データが、同じファイル名で `script_samples/` に存在すること。
+
+行の種類は、以下の文字列です。
+
+- "TITLE"
+- "AUTHOR"
+- "CHARSHEADLINE"
+- "CHARACTER"
+- "H1"
+- "H2"
+- "H3"
+- "DIRECTION"
+- "DIALOGUE"
+- "ENDMARK"
+- "COMMENT"
+- "EMPTY"
+- "CHARACTER_CONTINUED"
+- "DIRECTION_CONTINUED"
+- "DIALOGUE_CONTINUED"
+- "COMMENT_CONTINUED"
