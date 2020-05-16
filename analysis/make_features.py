@@ -7,10 +7,13 @@ from juman_psc import JumanPsc
 from mrph_match import MrphMatch, MRPH_MTCH_PTN
 
 # 入力ディレクトリ
-input_dir = 'script_samples_2'
+input_dir = 'script_samples'
 
 # 出力ディレクトリ
 output_dir = 'script_features'
+
+# 最初に出力ディレクトリを空にするか
+empty_output_dir = True
 
 # 特徴量を正規化するか
 normalize = False
@@ -54,7 +57,7 @@ def params_in_line(line):
         matched_str = match_result.matched_str
         
         # 後続単語を取っておく
-        if len(mrphs) >= match_result.matched_count:
+        if len(mrphs) > match_result.matched_count:
             succeeding_mrph = mrphs[match_result.matched_count]
     
     params['matched_str'] = matched_str
@@ -208,9 +211,10 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
 # 出力ディレクトリを空にする
-for entry in os.scandir(path=output_dir):
-    if entry.is_file:
-        os.remove(entry)
+if empty_output_dir:
+    for entry in os.scandir(path=output_dir):
+        if entry.is_file():
+            os.remove(entry)
 
 # 特徴量の取り出し順
 ft_keys = ptn_ids + (   # パターンマッチング
@@ -225,7 +229,7 @@ ft_keys = ptn_ids + (   # パターンマッチング
 #%%
 # 入力ディレクトリ内のファイルについて、特徴量を作成
 for entry in os.scandir(path=input_dir):
-    if not entry.is_file:
+    if not entry.is_file():
         continue
     
     # 出力ファイル名
