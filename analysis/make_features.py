@@ -238,7 +238,7 @@ for entry in os.scandir(path=input_dir):
         for ft in features_in_file(entry, normalize=normalize):
             # 特徴量から取り出し順に値を取り出したリスト
             vals = [str(ft[k]) for k in ft_keys]
-            l = ', '.join(vals)
+            l = ','.join(vals)
             f.write(l + '\n')
     
     print(out_f)
