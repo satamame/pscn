@@ -38,20 +38,32 @@ def params_in_line(line):
     mrphs = juman.analysis(line).mrph_list()
     mrph_match = MrphMatch(mrphs)
     
-    # パターンマッチング
+    # パターンマッチングパラメタを作る
+    matched = False
+    
     # パラメタの初期値
     matched_str = ''
     succeeding_mrph = None
     
     for ptn in ptn_ids:
+        # 2つ以上のパターンにマッチしないようにする
+        if matched:
+            params[ptn] = False
+            continue
+        
+        # マッチングする
         mrph_ptn = MRPH_MTCH_PTN[ptn]
         match_result = mrph_match.match(mrph_ptn)
         
         # マッチしたかどうかをパラメタにする (キーはパターン番号)
         params[ptn] = match_result.matched
+        
         # マッチしなかったら次のパターンへ
         if not match_result.matched:
             continue
+        
+        # マッチした場合
+        matched = True
         
         # マッチした部分の文字列を取っておく
         matched_str = match_result.matched_str
@@ -71,12 +83,28 @@ def params_in_line(line):
         interj_follows = succeeding_mrph.hinsi == '感動詞'
         params['interj_follows'] = interj_follows
     else:
-        params['symbol_follows'] = None
-        params['interj_follows'] = None
+        params['symbol_follows'] = False
+        params['interj_follows'] = False
     
     # 行頭の空白文字の数
     match_result = mrph_match.match((MrphMatch.match_spaces,))
     params['leading_spc'] = match_result.matched_count
+    
+    # 空行か
+    params['empty'] = not line
+    
+    # 最後が '」'か
+    if len(mrphs) > 0:
+        params['ends_w_bracket'] = (mrphs[-1].genkei == '」')
+    else:
+        params['ends_w_bracket'] = False
+    
+    # 最後が文末文字か
+    if len(mrphs) > 0:
+        params['sentence_ends'] = (
+            mrphs[-1].midasi in ['。', '？', '?', '！', '!'])
+    else:
+        params['sentence_ends'] = False
     
     return params
 
@@ -102,6 +130,14 @@ def features_in_file(fname, normalize=False):
     line_features = []
     # 行ごとのパラメタ
     line_params = []
+    
+    # 最後に処理した行が空行か
+    last_is_empty = True
+    # 最後に処理した行の最後が '」'か
+    last_ends_w_bracket = False
+    # 最後に処理した行の最後が文末文字 (。？?！!) か
+    last_sentence_ends = True
+    
     # パターンごとのマッチした行数
     ptn_line_count = {}
     # 文字列ごとのマッチした行数
@@ -112,8 +148,8 @@ def features_in_file(fname, normalize=False):
     with open(fname, encoding='utf_8_sig') as f:
         for i, l in enumerate(f.readlines()):
             line = l.rstrip()
-            param = params_in_line(line)
-            line_params.append(param)
+            params = params_in_line(line)
+            line_params.append(params)
             
             feature = {}
             
@@ -121,22 +157,34 @@ def features_in_file(fname, normalize=False):
             
             # パターンマッチング
             for ptn in ptn_ids:
-                feature[ptn] = 1 if param[ptn] else 0
+                feature[ptn] = int(params[ptn])
             
             # パターンの後続単語がセリフっぽい記号か
-            feature['symbol_follows'] = 1 if param['symbol_follows'] else 0
+            feature['symbol_follows'] = int(params['symbol_follows'])
             
             # パターンの後続単語が感動詞か
-            feature['interj_follows'] = 1 if param['interj_follows'] else 0
+            feature['interj_follows'] = int(params['interj_follows'])
             
             # 行頭の空白文字の数
-            leading_spc = param['leading_spc']
+            leading_spc = params['leading_spc']
             # 正規化するなら、10で割って最大値1.0で切り捨て
             if normalize:
                 leading_spc = min(leading_spc / 10, 1.0)
             feature['leading_spc'] = leading_spc
             
-            # 行ごとの特徴量のリストに追加
+            # 前の行が空行か
+            feature['prev_is_empty'] = int(last_is_empty)
+            last_is_empty = params['empty']
+            
+            # 前の行の最後が '」'か
+            feature['prev_ends_w_bracket'] = int(last_ends_w_bracket)
+            last_ends_w_bracket = params['ends_w_bracket']
+            
+            # 前の行の最後が文末文字 (。？?！!) か
+            feature['prev_sentence_ends'] = int(last_sentence_ends)
+            last_sentence_ends = params['sentence_ends']
+            
+            # ここまでの特徴量を、行ごとの特徴量のリストに追加
             line_features.append(feature)
             
             # ファイル全体の集計用の辞書を更新する
@@ -149,14 +197,14 @@ def features_in_file(fname, normalize=False):
                     ptn_line_count[ptn] = 1
             
             # 文字列ごとのマッチした行数
-            matched_str = param['matched_str']
+            matched_str = params['matched_str']
             if matched_str in str_line_count.keys():
                 str_line_count[matched_str] += 1
             else:
                 str_line_count[matched_str] = 1
             
             # 行頭の空白の数ごとの行数 (キーは正規化前の値)
-            leading_spc = param['leading_spc']
+            leading_spc = params['leading_spc']
             if leading_spc in spc_line_count.keys():
                 spc_line_count[leading_spc] += 1
             else:
@@ -217,13 +265,16 @@ if empty_output_dir:
             os.remove(entry)
 
 # 特徴量の取り出し順
-ft_keys = ptn_ids + (   # パターンマッチング
-    'symbol_follows',   # パターンの後続単語がセリフっぽい記号か
-    'interj_follows',   # パターンの後続単語が感動詞か
-    'leading_spc',      # 行頭の空白文字の数
-    'ptn_line_count',   # この行と同じパターンにマッチした行数
-    'str_line_count',   # この行と同じ文字列にパターンマッチした行数
-    'spc_line_count',   # この行と行頭の空白の数が同じ行の数
+ft_keys = ptn_ids + (       # パターンマッチング
+    'symbol_follows',       # パターンの後続単語がセリフっぽい記号か
+    'interj_follows',       # パターンの後続単語が感動詞か
+    'leading_spc',          # 行頭の空白文字の数
+    'prev_is_empty',        # 前の行が空行か
+    'prev_ends_w_bracket',  # 前の行の最後が '」'か
+    'prev_sentence_ends',   # 前の行の最後が文末文字 (。？?！!) か
+    'ptn_line_count',       # この行と同じパターンにマッチした行数
+    'str_line_count',       # この行と同じ文字列にパターンマッチした行数
+    'spc_line_count',       # この行と行頭の空白の数が同じ行の数
 )
 
 #%%
