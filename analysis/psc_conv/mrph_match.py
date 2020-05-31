@@ -1,4 +1,4 @@
-'''形態素列のパターンマッチングをするクラスのモジュール
+'''形態素列のパターンマッチングをするためのモジュール
 '''
 
 class MrphMatch(object):
@@ -137,7 +137,7 @@ class MrphMatch(object):
         return cls.match_repeat(mrphs, lambda mrph: mrph.hinsi == '名詞')
     
     @classmethod
-    def match_left_corner_bracket(cls, mrphs):
+    def match_left_bracket(cls, mrphs):
         '''形態素列の先頭の1個が左鉤括弧にマッチするか調べる
         '''
         return cls.match_single(mrphs, lambda mrph: mrph.genkei == '「')
@@ -171,29 +171,36 @@ MRPH_MTCH_PTN = {
     '0001' : (
         MrphMatch.match_spaces,
         MrphMatch.match_noun,
-        MrphMatch.match_left_corner_bracket,
+        MrphMatch.match_left_bracket,
     ),
 
     # (名詞) "「"
     '0002' : (
         MrphMatch.match_noun,
-        MrphMatch.match_left_corner_bracket,
+        MrphMatch.match_left_bracket,
+    ),
+
+    # (名詞+) (空白+) "「"
+    '0003' : (
+        MrphMatch.match_nouns,
+        MrphMatch.match_spaces,
+        MrphMatch.match_left_bracket,
     ),
 
     # (名詞+) (空白)
-    '0003' : (
+    '0004' : (
         MrphMatch.match_nouns,
         MrphMatch.match_space,
     ),
 
     # (名詞) (空白+)
-    '0004' : (
+    '0005' : (
         MrphMatch.match_noun,
         MrphMatch.match_spaces,
     ),
 
     # (空白) (名詞) (空白+)
-    '0005' : (
+    '0006' : (
         MrphMatch.match_space,
         MrphMatch.match_noun,
         MrphMatch.match_spaces,

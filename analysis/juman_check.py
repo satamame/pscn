@@ -1,26 +1,16 @@
-'''形態素解析を単品で実行して確認するためのスクリプト。
+'''JumanPsc の形態素解析を単品の文字列で試す
 '''
 
-#%%
-from pyknp import Juman
-from juman_psc import JumanPsc
+from psc_conv import JumanPsc
+from juman_settings import *
 
 
-#%%
-# juman = Juman(command='jumanpp_v2',
-#     option='--config=C:\ProgramData\jumanpp\model\jumandic.conf')
+juman = JumanPsc(command=JUMAN_COMMAND, option=JUMAN_OPTION)
 
-juman = JumanPsc()
+s = '今日もいい天気'
 
-#%%
-s = '「'
-
-print(f'{len(s.encode())} bytes.')
-
-
-#%%
 try:
-    mrphs = juman.analysis(s).mrph_list()
+    mrphs = juman.analysis(s)
 
     for mrph in mrphs:
         print(f'"{mrph.midasi}"')              # 見出し
@@ -31,6 +21,3 @@ try:
 
 except Exception as e:
     print(e)
-
-
-# %%

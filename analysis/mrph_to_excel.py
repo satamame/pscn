@@ -1,18 +1,18 @@
 '''サンプルファイルの各行を形態素解析して表を作る。
 '''
 
-#%%
 import os
 import pandas as pd
 import openpyxl
-from juman_psc import JumanPsc
+from psc_conv import JumanPsc
+from juman_settings import *
 
 
 # 入力ディレクトリ
 input_dir = 'line_start_samples'
 
-# 出力ファイル
-output_file = 'line_start_analysis'
+# 出力ファイル名
+output_file = 'line_start_analysis.xlsx'
 
 # 先頭から何単語まで解析するか
 word_count = 10
@@ -21,8 +21,10 @@ word_count = 10
 input_dir = os.path.join(os.path.dirname(__file__), input_dir)
 output_file = os.path.join(os.path.dirname(__file__), output_file)
 
-#%%
-def morph_line(line, word_count=0):
+juman = JumanPsc(command=JUMAN_COMMAND, option=JUMAN_OPTION)
+
+
+def mrph_line(line, word_count=0):
     '''与えられた文の先頭を形態素解析して返すジェネレータ
     
     Parameters
@@ -35,8 +37,6 @@ def morph_line(line, word_count=0):
     yield: dict
         見出し, 原形, 品詞, 品詞細分類, 活用形
     '''
-    
-    juman = JumanPsc()
     
     # 形態素解析
     result = juman.analysis(line).mrph_list()
@@ -63,8 +63,7 @@ def morph_line(line, word_count=0):
             break
 
 
-#%%
-def morph_file(file, word_count=0):
+def mrph_file(file, word_count=0):
     '''テキストファイル内の各行を形態素解析して返すジェネレータ
     
     Parameters
@@ -82,11 +81,10 @@ def morph_file(file, word_count=0):
             line = l.rstrip()
             yield{
                 'line': line,
-                'mrph': list(morph_line(line, word_count))
+                'mrph': list(mrph_line(line, word_count))
             }
 
 
-#%%
 # 解析済みのデータを溜めていくリスト
 lines = []
 
@@ -103,7 +101,7 @@ for entry in os.scandir(path=input_dir):
     if not os.path.splitext(file)[-1] == '.txt':
         continue
     
-    for l in morph_file(file, word_count):
+    for l in mrph_file(file, word_count):
         line = []
         # 各行の最初の要素は原文
         line.append(l['line'])
@@ -122,11 +120,8 @@ for entry in os.scandir(path=input_dir):
         lines.append(line)
 
 
-#%%
 # Excel に保存
 
 df = pd.DataFrame(lines)
-df.to_excel(output_file + '.xlsx')
-
-
-# %%
+df.to_excel(output_file)
+print('Done.')

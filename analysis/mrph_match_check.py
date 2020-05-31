@@ -1,13 +1,12 @@
-'''形態素列マッチングを単品で実行して確認するためのスクリプト。
+'''形態素列マッチングを単品で実行して確認する
 '''
 
-#%%
-from juman_psc import JumanPsc
-from mrph_match import MrphMatch
+from psc_conv import JumanPsc, MrphMatch
+from juman_settings import *
 
-juman = JumanPsc()
 
-#%%
+juman = JumanPsc(command=JUMAN_COMMAND, option=JUMAN_OPTION)
+
 line = '  　男「ようこそ皆さん、私の名前はジョニー。今日は私のリサイタルショーにおいで下さってありがとうございます。今宵、しばし皆様の時間を拝借して、私の歌をお聞きください。では、まずはこの歌から」'
 # line = '    男  '
 
@@ -19,7 +18,7 @@ result = mrph_match.match(
     ptn = [
         MrphMatch.match_spaces,
         MrphMatch.match_noun,
-        MrphMatch.match_left_corner_bracket,
+        MrphMatch.match_left_bracket,
     ]
 )
 
@@ -28,6 +27,3 @@ print(f'マッチ範囲文字列: {result.matched_str}')
 print(f'マッチ範囲内形態素数: {result.matched_count}')
 if len(mrphs) >= result.matched_count:
     print(f'後続単語: {mrphs[result.matched_count].midasi}')
-
-
-# %%
