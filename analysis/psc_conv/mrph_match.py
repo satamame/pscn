@@ -25,6 +25,7 @@ class MrphMatch(object):
             マッチングに使うメソッドのリスト
         idx : int
             マッチングを開始する位置
+            負の数なら末尾からマッチングする
         
         Returns
         -------
@@ -35,19 +36,38 @@ class MrphMatch(object):
         if ptn is None:
             ptn = []
         
-        # 指定位置以降をマッチングの対象にする
-        mrphs = self.mrphs[idx:]
+        # 検索の向き
+        direction = 1 if idx >= 0 else -1
+        
+        # マッチングの対象を切り取る
+        if idx > 0:
+            # 開始位置が1以上なら先頭を切り取る
+            mrphs = self.mrphs[idx:]
+        elif idx < -1:
+            # 開始位置が-2以下なら末尾を切り取る
+            mrphs = self.mrphs[:idx + 1]
+        else:
+            # 開始位置が0または-1なら切り取らない
+            mrphs = self.mrphs
         
         matched = True
         matched_str = ''
         matched_count = 0
         
         for cond in ptn:
-            result = cond(mrphs)
+            result = cond(mrphs, direction)
             if result.matched:
-                matched_str += result.matched_str
+                # 次の位置はマッチした形態素数 x 検索の向き
+                idx = result.matched_count * direction
+                
+                if direction > 0:
+                    matched_str += result.matched_str
+                    mrphs = mrphs[idx:]
+                else:
+                    matched_str = result.matched_str + matched_str
+                    mrphs = mrphs[:idx]
+                
                 matched_count += result.matched_count
-                mrphs = mrphs[result.matched_count:]
             else:
                 matched = False
                 matched_str = ''
@@ -58,8 +78,8 @@ class MrphMatch(object):
         return MrphMatchResult(matched, matched_str, matched_count)
     
     @classmethod
-    def match_single(cls, mrphs, cond):
-        '''形態素列の先頭の1個が条件にマッチするか調べる
+    def match_single(cls, mrphs, cond, direction=1):
+        '''形態素列の先頭/末尾の1個が条件にマッチするか調べる
         
         Parameters
         ----------
@@ -67,6 +87,8 @@ class MrphMatch(object):
             マッチングの対象となる形態素列
         cond : function
             マッチングをするメソッド
+        direction : int
+            1なら先頭、-1なら末尾を調べる
         
         Returns
         -------
@@ -74,13 +96,21 @@ class MrphMatch(object):
             マッチングの結果
         '''
         
-        if len(mrphs) > 0 and cond(mrphs[0]):
-            return MrphMatchResult(True, mrphs[0].midasi, 1)
+        # 形態素列が空ならマッチしない
+        if len(mrphs) < 1:
+            return MrphMatchResult(False, '', 0)
+        
+        # マッチングの対象となる形態素
+        mrph = mrphs[0] if direction > 0 else mrphs[-1]
+        
+        # マッチングして結果を返す
+        if cond(mrph):
+            return MrphMatchResult(True, mrph.midasi, 1)
         else:
             return MrphMatchResult(False, '', 0)
     
     @classmethod
-    def match_repeat(cls, mrphs, cond):
+    def match_repeat(cls, mrphs, cond, direction=1):
         '''形態素列の先頭の1個以上が条件にマッチするか調べる
         
         Parameters
@@ -89,6 +119,8 @@ class MrphMatch(object):
             マッチングの対象となる形態素列
         cond : function
             マッチングをするメソッド
+        direction : int
+            1なら先頭、-1なら末尾から調べる
         
         Returns
         -------
@@ -98,11 +130,17 @@ class MrphMatch(object):
         
         matched = True
         matched_str = ''
+        
+        # idx は、direction が1なら先頭からの、-1なら末尾からの位置
         idx = 0
         
         while idx < len(mrphs):
-            if cond(mrphs[idx]):
-                matched_str += mrphs[idx].midasi
+            mrph = mrphs[idx] if direction > 0 else mrphs[-idx - 1]
+            if cond(mrph):
+                if direction > 0:
+                    matched_str += mrph.midasi
+                else:
+                    matched_str = mrph.midasi + matched_str
                 idx += 1
             else:
                 break
@@ -113,34 +151,39 @@ class MrphMatch(object):
             return MrphMatchResult(False, '', 0)
     
     @classmethod
-    def match_space(cls, mrphs):
+    def match_space(cls, mrphs, direction=1):
         '''形態素列の先頭が空白文字1個にマッチするか調べる
         '''
-        return cls.match_single(mrphs, lambda mrph: mrph.bunrui == '空白')
+        return cls.match_single(mrphs, lambda mrph: mrph.bunrui == '空白',
+            direction)
     
     @classmethod
-    def match_spaces(cls, mrphs):
+    def match_spaces(cls, mrphs, direction=1):
         '''形態素列の先頭が1個以上の連続する空白文字にマッチするか調べる
         '''
-        return cls.match_repeat(mrphs, lambda mrph: mrph.bunrui == '空白')
+        return cls.match_repeat(mrphs, lambda mrph: mrph.bunrui == '空白',
+            direction)
     
     @classmethod
-    def match_noun(cls, mrphs):
+    def match_noun(cls, mrphs, direction=1):
         '''形態素列の先頭の1個が名詞にマッチするか調べる
         '''
-        return cls.match_single(mrphs, lambda mrph: mrph.hinsi == '名詞')
+        return cls.match_single(mrphs, lambda mrph: mrph.hinsi == '名詞',
+            direction)
     
     @classmethod
-    def match_nouns(cls, mrphs):
+    def match_nouns(cls, mrphs, direction=1):
         '''形態素列の先頭が1個以上の連続する名詞にマッチするか調べる
         '''
-        return cls.match_repeat(mrphs, lambda mrph: mrph.hinsi == '名詞')
+        return cls.match_repeat(mrphs, lambda mrph: mrph.hinsi == '名詞',
+            direction)
     
     @classmethod
-    def match_left_bracket(cls, mrphs):
+    def match_left_bracket(cls, mrphs, direction=1):
         '''形態素列の先頭の1個が左鉤括弧にマッチするか調べる
         '''
-        return cls.match_single(mrphs, lambda mrph: mrph.genkei == '「')
+        return cls.match_single(mrphs, lambda mrph: mrph.genkei == '「',
+            direction)
 
 
 class MrphMatchResult(object):
@@ -165,44 +208,64 @@ class MrphMatchResult(object):
         self.matched_count = matched_count
 
 
+# TODO: パターンに、先頭からか末尾からかを含める
+
 # マッチングパターン集
 MRPH_MTCH_PTN = {
-    # (空白+) (名詞) "「"
-    '0001' : (
-        MrphMatch.match_spaces,
-        MrphMatch.match_noun,
-        MrphMatch.match_left_bracket,
-    ),
+    # (空白+) (名詞) "「" で始まる
+    '0001': {
+        'ptn': (
+            MrphMatch.match_spaces,
+            MrphMatch.match_noun,
+            MrphMatch.match_left_bracket,
+        ),
+        'idx': 0
+    },
 
-    # (名詞) "「"
-    '0002' : (
-        MrphMatch.match_noun,
-        MrphMatch.match_left_bracket,
-    ),
+    # (名詞) "「" で始まる
+    '0002': {
+        'ptn': (
+            MrphMatch.match_noun,
+            MrphMatch.match_left_bracket,
+        ),
+        'idx': 0
+    },
 
-    # (名詞+) (空白+) "「"
-    '0003' : (
-        MrphMatch.match_nouns,
-        MrphMatch.match_spaces,
-        MrphMatch.match_left_bracket,
-    ),
+    # (名詞+) (空白+) "「" で始まる
+    '0003': {
+        'ptn': (
+            MrphMatch.match_nouns,
+            MrphMatch.match_spaces,
+            MrphMatch.match_left_bracket,
+        ),
+        'idx': 0
+    },
 
-    # (名詞+) (空白)
-    '0004' : (
-        MrphMatch.match_nouns,
-        MrphMatch.match_space,
-    ),
+    # (名詞+) (空白) で始まる
+    '0004': {
+        'ptn': (
+            MrphMatch.match_nouns,
+            MrphMatch.match_space,
+        ),
+        'idx': 0
+    },
 
     # (名詞) (空白+)
-    '0005' : (
-        MrphMatch.match_noun,
-        MrphMatch.match_spaces,
-    ),
+    '0005': {
+        'ptn': (
+            MrphMatch.match_noun,
+            MrphMatch.match_spaces,
+        ),
+        'idx': 0
+    },
 
     # (空白) (名詞) (空白+)
-    '0006' : (
-        MrphMatch.match_space,
-        MrphMatch.match_noun,
-        MrphMatch.match_spaces,
-    ),
+    '0006': {
+        'ptn': (
+            MrphMatch.match_space,
+            MrphMatch.match_noun,
+            MrphMatch.match_spaces,
+        ),
+        'idx': 0
+    }
 }

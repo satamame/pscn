@@ -44,7 +44,7 @@ def params_in_line(juman, line):
         
         # マッチングする
         mrph_ptn = MRPH_MTCH_PTN[ptn]
-        match_result = mrph_match.match(mrph_ptn)
+        match_result = mrph_match.match(**mrph_ptn)
         
         # マッチしたかどうかをパラメタにする (キーはパターン番号)
         params[ptn] = match_result.matched
