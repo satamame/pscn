@@ -5,8 +5,8 @@ import os
 from . import MrphMatch, MRPH_MTCH_PTN
 
 
-# パターンマッチングに使うパターン名
-ptn_ids = ('0001', '0002', '0003', '0004', '0005', '0006')
+# パターンマッチングに使うパターン名 (とりあえず全部)
+ptn_ids = tuple(MRPH_MTCH_PTN.keys())
 
 
 def params_in_line(juman, line):
@@ -245,7 +245,7 @@ def features_in_file(juman, fname, normalize=False):
     return line_features
 
 
-def make_features_dir(juman, input_dir, output_dir,
+def make_features(juman, input_dir, output_dir,
         empty_output_dir=True, normalize=False):
     '''入力ディレクトリ内のファイルから特徴量を抽出する
     

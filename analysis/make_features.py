@@ -1,9 +1,8 @@
 '''複数の台本ファイルを一括で、形態素解析～特徴量抽出までする
 '''
 
-#%%
 import os
-from psc_conv import JumanPsc, make_features_dir
+from psc_conv import JumanPsc, make_features
 from juman_settings import *
 
 
@@ -25,5 +24,5 @@ output_dir = os.path.join(os.path.dirname(__file__), output_dir)
 
 # 特徴量を作る
 juman = JumanPsc(command=JUMAN_COMMAND, option=JUMAN_OPTION)
-make_features_dir(juman, input_dir, output_dir,
+make_features(juman, input_dir, output_dir,
     empty_output_dir=empty_output_dir, normalize=normalize)

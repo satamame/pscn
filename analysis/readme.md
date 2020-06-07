@@ -19,13 +19,16 @@
 
 ## フォルダ
 
+- script_rawdata/
+    - 生の台本データ (txt) を入れておくフォルダ。
+    - 形態素解析可能と分かったデータは、`script_samples/` に移す。
 - script_samples/
     - 特徴量の取り出し元となる台本ファイル (txt) を入れておくフォルダ。
 - script_features/
     - 台本ごとの特徴量ファイル (csv) を保存するフォルダ。
-- script_rawdata/
-    - 生の台本データ (txt) を入れておくフォルダ。
-    - 形態素解析可能と分かったデータは、`script_samples/` に移す。
+- script_targets/
+    - 教師ラベルファイル (txt) を入れておくフォルダ。
+    - `script_features` フォルダと同名のファイル同士が対応する。
 
 # 解析手順
 
