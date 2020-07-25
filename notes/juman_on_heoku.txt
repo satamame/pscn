@@ -1,0 +1,16 @@
+Heroku で形態素解析しようと思ったら、やっぱり pure Python の Janome が良いのでしょうか。
+
+
+Heroku の Settings で buildpack を追加
+https://github.com/sunny4381/heroku-buildpack-linuxbrew
+
+リポジトリルートに .cellar ファイルを作る
+```
+jumanpp
+```
+
+デプロイする。
+→容量オーバーで失敗。
+
+Heroku で buildpack-linuxbrew を使って JUMAN++ をインストールしようとしたんですけど、容量オーバー (1.8GB) とかでデプロイできなかったんですけど、そんなもんなんでしょうか。
+

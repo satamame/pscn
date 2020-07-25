@@ -2,7 +2,7 @@
 '''
 
 from psc_conv import JumanPsc
-from juman_settings import *
+from juman_settings import JUMAN_COMMAND, JUMAN_OPTION
 
 
 juman = JumanPsc(command=JUMAN_COMMAND, option=JUMAN_OPTION)

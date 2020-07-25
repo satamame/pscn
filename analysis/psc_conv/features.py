@@ -2,8 +2,8 @@
 '''
 
 import os
+import re
 from . import MrphMatch, MRPH_MTCH_PTN
-
 
 # パターンマッチングに使うパターン名 (とりあえず全部)
 ptn_ids = tuple(MRPH_MTCH_PTN.keys())
@@ -77,12 +77,12 @@ def params_in_line(juman, line):
         params['symbol_follows'] = False
         params['interj_follows'] = False
     
+    # 空行か
+    params['is_empty'] = not line.strip()
+    
     # 行頭の空白文字の数
     match_result = mrph_match.match((MrphMatch.match_spaces,))
     params['leading_spc'] = match_result.matched_count
-    
-    # 空行か
-    params['empty'] = not line
     
     # 最後が '」'か
     if len(mrphs) > 0:
@@ -96,6 +96,9 @@ def params_in_line(juman, line):
             mrphs[-1].midasi in ['。', '？', '?', '！', '!'])
     else:
         params['sentence_ends'] = False
+    
+    # 「登場人物」を含むか
+    params['states_charsheadline'] = ('登場人物' in line)
     
     return params
 
@@ -157,6 +160,25 @@ def features_in_file(juman, fname, normalize=False):
             # パターンの後続単語が感動詞か
             feature['interj_follows'] = int(params['interj_follows'])
             
+            # 最初の行か
+            feature['is_first_line'] = int(i == 0)
+            
+            # 最後の行か
+            feature['is_last_line'] = '0'  # ループを出てからセットし直す
+            
+            # 空または空白文字のみか
+            feature['is_empty'] = int(params['is_empty'])
+            
+            # 最後が '」'か
+            feature['ends_w_bracket'] = int(params['ends_w_bracket'])
+            
+            # 最後が文末文字 (。？?！!) か
+            feature['sentence_ends'] = int(params['sentence_ends'])
+            
+            # 「登場人物」を含むか
+            feature['states_charsheadline'] = int(
+                params['states_charsheadline'])
+            
             # 行頭の空白文字の数
             leading_spc = params['leading_spc']
             # 正規化するなら、10で割って最大値1.0で切り捨て
@@ -166,7 +188,7 @@ def features_in_file(juman, fname, normalize=False):
             
             # 前の行が空行か
             feature['prev_is_empty'] = int(last_is_empty)
-            last_is_empty = params['empty']
+            last_is_empty = params['is_empty']
             
             # 前の行の最後が '」'か
             feature['prev_ends_w_bracket'] = int(last_ends_w_bracket)
@@ -204,6 +226,9 @@ def features_in_file(juman, fname, normalize=False):
     
     # ファイル全体の行数
     line_cnt = len(line_features)
+    
+    # 最後の行に is_last_line をセットする
+    line_features[line_cnt - 1]['is_last_line'] = '1'
     
     # ファイル全体で集計したデータから特徴量を追加する
     for i, lf in enumerate(line_features):
@@ -245,9 +270,11 @@ def features_in_file(juman, fname, normalize=False):
     return line_features
 
 
-def make_features(juman, input_dir, output_dir,
+def make_features(juman, input_dir, output_dir, targets_dir,
         empty_output_dir=True, normalize=False):
     '''入力ディレクトリ内のファイルから特徴量を抽出する
+    
+    特徴量を作るのに、前の行のラベルが必要になるので、教師ラベルも読み込む
     
     Parameters
     ----------
@@ -255,8 +282,10 @@ def make_features(juman, input_dir, output_dir,
         形態素解析に使う JumanPsc のインスタンス
     input_dir: str
         入力ディレクトリのパス
-    output_dir: srt
+    output_dir: str
         出力ディレクトリのパス
+    targets_dir: str
+        教師ラベルファイルのディレクトリのパス
     empty_output_dir: bool
         出力ディレクトリを最初に空にするか
     normalize: bool
@@ -272,12 +301,18 @@ def make_features(juman, input_dir, output_dir,
             if entry.is_file():
                 os.remove(entry)
 
-    # 特徴量の取り出し順
+    # features_in_file() で作った特徴量の取り出し順
     ft_keys = ptn_ids + (       # パターンマッチング
         'symbol_follows',       # パターンの後続単語がセリフっぽい記号か
         'interj_follows',       # パターンの後続単語が感動詞か
+        'is_first_line',        # 最初の行か
+        'is_last_line',         # 最後の行か
+        'is_empty',             # 空または空白文字のみか
+        'ends_w_bracket',       # 最後が '」'か
+        'sentence_ends',        # 最後が文末文字 (。？?！!) か
+        'states_charsheadline', # 「登場人物」を含むか
         'leading_spc',          # 行頭の空白文字の数
-        'prev_is_empty',        # 前の行が空行か
+        'prev_is_empty',        # 前の行が空または空白文字のみか
         'prev_ends_w_bracket',  # 前の行の最後が '」'か
         'prev_sentence_ends',   # 前の行の最後が文末文字 (。？?！!) か
         'ptn_line_count',       # この行と同じパターンにマッチした行数
@@ -290,15 +325,39 @@ def make_features(juman, input_dir, output_dir,
         if not entry.is_file():
             continue
         
-        # 出力ファイル名
-        out_f = os.path.basename(entry).split('.', 1)[0]
-        with open(os.path.join(output_dir, out_f + '.csv'), 'w') as f:
-            for ft in features_in_file(juman, entry, normalize=normalize):
+        # ファイル名から拡張子を削除したもの
+        fname = os.path.basename(entry).split('.', 1)[0]
+        
+        # 教師ラベルを取得しておく
+        target_f = os.path.join(targets_dir, fname + '.txt')
+        with open(target_f, encoding='utf_8_sig') as f:
+            # 各行の空白文字以降を切り捨てた文字列を取得
+            lines = f.readlines()
+        labels = [re.split(r'\s', l, 1)[0] for l in lines]
+        
+        # 出力
+        out_f = os.path.join(output_dir, fname + '.csv')
+        with open(out_f, 'w') as f:
+            features = features_in_file(juman, entry, normalize=normalize)
+            for i, ft in enumerate(features):
                 # 特徴量から取り出し順に値を取り出したリスト
                 vals = [str(ft[k]) for k in ft_keys]
+                
+                # 前の行の教師ラベルを使って特徴量を追加
+                prev_label = labels[i - 1] if i > 0 else ''
+                vals.append(str(int(
+                    prev_label in ('CHARACTER', 'CHARACTER_CONTINUED'))))
+                vals.append(str(int(
+                    prev_label in ('DIRECTION', 'DIRECTION_CONTINUED'))))
+                vals.append(str(int(
+                    prev_label in ('DIALOGUE', 'DIALOGUE_CONTINUED'))))
+                vals.append(str(int(
+                    prev_label in ('COMMENT', 'COMMENT_CONTINUED'))))
+                
+                # カンマ区切りにして出力
                 l = ','.join(vals)
                 f.write(l + '\n')
         
-        print(out_f)
+        print(fname)
 
     print('Done.')

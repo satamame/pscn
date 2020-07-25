@@ -250,7 +250,7 @@ MRPH_MTCH_PTN = {
         'idx': 0
     },
 
-    # (名詞) (空白+)
+    # (名詞) (空白+) で始まる
     '0005': {
         'ptn': (
             MrphMatch.match_noun,
@@ -259,7 +259,7 @@ MRPH_MTCH_PTN = {
         'idx': 0
     },
 
-    # (空白) (名詞) (空白+)
+    # (空白) (名詞) (空白+) で始まる
     '0006': {
         'ptn': (
             MrphMatch.match_space,
