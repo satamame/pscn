@@ -132,6 +132,8 @@ def features_in_file(juman, fname, normalize=False):
     last_ends_w_bracket = False
     # 最後に処理した行の最後が文末文字 (。？?！!) か
     last_sentence_ends = True
+    # 最後に処理した行の行頭の空白文字数
+    last_leading_spc = 0
     
     # パターンごとのマッチした行数
     ptn_line_count = {}
@@ -185,6 +187,14 @@ def features_in_file(juman, fname, normalize=False):
             if normalize:
                 leading_spc = min(leading_spc / 10, 1.0)
             feature['leading_spc'] = leading_spc
+            
+            # 行頭の空白文字の数の増減
+            if i == 0:
+                delta = 0
+            else:
+                delta = params['leading_spc'] - last_leading_spc
+            feature['leading_spc_delta'] = delta
+            last_leading_spc = params['leading_spc']
             
             # 前の行が空行か
             feature['prev_is_empty'] = int(last_is_empty)
@@ -312,6 +322,7 @@ def make_features(juman, input_dir, output_dir, targets_dir,
         'sentence_ends',        # 最後が文末文字 (。？?！!) か
         'states_charsheadline', # 「登場人物」を含むか
         'leading_spc',          # 行頭の空白文字の数
+        'leading_spc_delta',    # 行頭の空白文字の数の増減
         'prev_is_empty',        # 前の行が空または空白文字のみか
         'prev_ends_w_bracket',  # 前の行の最後が '」'か
         'prev_sentence_ends',   # 前の行の最後が文末文字 (。？?！!) か
@@ -338,6 +349,15 @@ def make_features(juman, input_dir, output_dir, targets_dir,
         # 出力
         out_f = os.path.join(output_dir, fname + '.csv')
         with open(out_f, 'w') as f:
+            # 登場人物見出しが出た後か
+            charsheadline_used = '0'
+            # 柱 (レベル1) が出た後か
+            h1_used = '0'
+            # ト書きが出た後か
+            direction_used = '0'
+            # セリフが出た後か
+            dialogue_used = '0'
+            
             features = features_in_file(juman, entry, normalize=normalize)
             for i, ft in enumerate(features):
                 # 特徴量から取り出し順に値を取り出したリスト
@@ -345,18 +365,34 @@ def make_features(juman, input_dir, output_dir, targets_dir,
                 
                 # 前の行の教師ラベルを使って特徴量を追加
                 prev_label = labels[i - 1] if i > 0 else ''
-                vals.append(str(int(
-                    prev_label in ('CHARACTER', 'CHARACTER_CONTINUED'))))
-                vals.append(str(int(
-                    prev_label in ('DIRECTION', 'DIRECTION_CONTINUED'))))
-                vals.append(str(int(
-                    prev_label in ('DIALOGUE', 'DIALOGUE_CONTINUED'))))
-                vals.append(str(int(
-                    prev_label in ('COMMENT', 'COMMENT_CONTINUED'))))
+                vals.append(str(int(prev_label == 'CHARACTER')))
+                vals.append(str(int(prev_label == 'CHARACTER_CONTINUED')))
+                vals.append(str(int(prev_label == 'DIRECTION')))
+                vals.append(str(int(prev_label == 'DIRECTION_CONTINUED')))
+                vals.append(str(int(prev_label == 'DIALOGUE')))
+                vals.append(str(int(prev_label == 'DIALOGUE_CONTINUED')))
+                vals.append(str(int(prev_label == 'COMMENT')))
+                vals.append(str(int(prev_label == 'COMMENT_CONTINUED')))
+                
+                # ここまでの教師ラベルを使って特徴量を追加
+                vals.append(charsheadline_used)
+                vals.append(h1_used)
+                vals.append(direction_used)
+                vals.append(dialogue_used)
                 
                 # カンマ区切りにして出力
                 l = ','.join(vals)
                 f.write(l + '\n')
+                
+                # 次ループ以降のための特徴量の更新
+                if labels[i] == 'CHARSHEADLINE':
+                    charsheadline_used = '1'
+                if labels[i] == 'H1':
+                    h1_used = '1'
+                if labels[i] == 'DIRECTION':
+                    direction_used = '1'
+                if labels[i] == 'DIALOGUE':
+                    dialogue_used = '1'
         
         print(fname)
 

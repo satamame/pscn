@@ -38,7 +38,7 @@
 1. 0006
     - パターン 0006 にマッチするか (0/1)
 1. symbol_follows
-    - パターンの後続単語がセリフっぽい記号 ('…' 等) か (0/1)
+    - パターンの後続単語がセリフっぽい記号 (…・！!) か (0/1)
 1. interj_follows
     - パターンの後続単語が感動詞か (0/1)
 1. is_first_line
@@ -55,6 +55,8 @@
     - 「登場人物」を含むか (0/1)
 1. leading_spc
     - 行頭の空白文字の数 (正規化オプション有り)
+1. leading_spc_delta
+    - 行頭の空白文字の数の増減 (整数)
 1. prev_is_empty
     - 前の行が空行か (0/1)
 1. prev_ends_w_bracket
@@ -68,10 +70,26 @@
 1. spc_line_count
     - この行と行頭の空白の数が同じ行の数 (正規化オプション有り)
 1. prev_is_CHARACTER
-    - 前の行が <登場人物> または <登場人物の2行目以降>
+    - 前の行が <登場人物> か (0/1)
+1. prev_is_CHARACTER_CONTINUED
+    - 前の行が <登場人物の2行目以降> か (0/1)
 1. prev_is_DIRECTION
-    - 前の行が <ト書き> または <ト書きの2行目以降>
+    - 前の行が <ト書き> か (0/1)
+1. prev_is_DIRECTION_CONTINUED
+    - 前の行が <ト書きの2行目以降> か (0/1)
 1. prev_is_DIALOGUE
-    - 前の行が <セリフ> または <セリフの2行目以降>
+    - 前の行が <セリフ> か (0/1)
+1. prev_is_DIALOGUE_CONTINUED
+    - 前の行が <セリフの2行目以降> か (0/1)
 1. prev_is_COMMENT
-    - 前の行が <コメント> または <コメントの2行目以降>
+    - 前の行が <コメント> か (0/1)
+1. prev_is_COMMENT_CONTINUED
+    - 前の行が <コメントの2行目以降> か (0/1)
+1. charsheadline_used
+    - 登場人物見出しが出た後か (0/1)
+1. h1_used
+    - 柱 (レベル1) が出た後か (0/1)
+1. direction_used
+    - 書きが出た後か (0/1)
+1. dialogue_used
+    - セリフが出た後か (0/1)
