@@ -4,7 +4,8 @@
 import os
 import re
 from sklearn.tree import DecisionTreeClassifier
-from . import PscClass
+from . import PscClass, features_in_lines
+from .features import ft_keys
 
 
 def get_dataset(targets_dir, features_dir):
@@ -87,3 +88,72 @@ def make_model(targets, features, max_depth):
     tree.fit(features, targets)
     
     return tree
+
+
+def predict(juman, tree, lines, normalize=False):
+    '''決定木モデルを使って台本の各行の種類を予測する
+    
+    Parameters
+    ----------
+    juman: JumanPsc
+        形態素解析に使う JumanPsc のインスタンス
+    tree : DecisionTreeClassifier
+        予測に使う決定木モデル
+    lines : list
+        行 (str) のリスト
+    normalize : bool
+        正規化するかどうか
+    
+    Yields
+    ------
+    label : PscClass
+        各行の種類
+    '''
+    
+    # 登場人物見出しが出た後か
+    charsheadline_used = 0
+    # 柱 (レベル1) が出た後か
+    h1_used = 0
+    # ト書きが出た後か
+    direction_used = 0
+    # セリフが出た後か
+    dialogue_used = 0
+    # 前の行のラベル
+    prev_label = -1
+
+    features = features_in_lines(juman, lines, normalize=normalize)
+    for i, ft in enumerate(features):
+        # 特徴量から取り出し順に値を取り出したリスト
+        vals = [ft[k] for k in ft_keys]
+
+        # 前の行の教師ラベルを使って特徴量を追加
+        vals.append(prev_label == PscClass.CHARACTER)
+        vals.append(prev_label == PscClass.CHARACTER_CONTINUED)
+        vals.append(prev_label == PscClass.DIRECTION)
+        vals.append(prev_label == PscClass.DIRECTION_CONTINUED)
+        vals.append(prev_label == PscClass.DIALOGUE)
+        vals.append(prev_label == PscClass.DIALOGUE_CONTINUED)
+        vals.append(prev_label == PscClass.COMMENT)
+        vals.append(prev_label == PscClass.COMMENT_CONTINUED)
+
+        # ここまでの教師ラベルを使って特徴量を追加
+        vals.append(charsheadline_used)
+        vals.append(h1_used)
+        vals.append(direction_used)
+        vals.append(dialogue_used)
+
+        # 予測する
+        labels = tree.predict([vals])
+        label = labels[0]
+        yield label
+        
+        # 次ループ以降のための特徴量の更新
+        if label == PscClass.CHARSHEADLINE:
+            charsheadline_used = 1
+        if label == PscClass.H1:
+            h1_used = 1
+        if label == PscClass.DIRECTION:
+            direction_used = 1
+        if label == PscClass.DIALOGUE:
+            dialogue_used = 1
+        prev_label = label

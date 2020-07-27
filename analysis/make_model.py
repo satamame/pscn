@@ -1,4 +1,5 @@
 import os
+import pickle
 from sklearn.metrics import accuracy_score, classification_report
 from psc_conv import get_dataset, make_model, PscClass
 
@@ -8,6 +9,9 @@ targets_dir = 'script_targets'
 
 # 特徴量ファイルのディレクトリ
 features_dir = 'script_features'
+
+# モデルの保存ファイル名
+model_name = 'model.pkl'
 
 # 特定のラベルのみ検証する場合の設定 (すべてのラベルを使うなら空にする)
 active_classes = {
@@ -44,6 +48,8 @@ print(report)
 score = accuracy_score(targets, predicted)
 print(f'Score: {score}')
 
-
-# TODO: 精度が十分であればモデルを保存する処理を追加
-
+# モデルを保存する
+model_file = os.path.join(os.path.dirname(__file__), model_name)
+with open(model_file, 'wb') as f:
+    pickle.dump(tree, f)
+print(f'Model saved as {model_name}.')
