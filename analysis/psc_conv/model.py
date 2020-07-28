@@ -127,14 +127,14 @@ def predict(juman, tree, lines, normalize=False):
         vals = [ft[k] for k in ft_keys]
 
         # 前の行の教師ラベルを使って特徴量を追加
-        vals.append(prev_label == PscClass.CHARACTER)
-        vals.append(prev_label == PscClass.CHARACTER_CONTINUED)
-        vals.append(prev_label == PscClass.DIRECTION)
-        vals.append(prev_label == PscClass.DIRECTION_CONTINUED)
-        vals.append(prev_label == PscClass.DIALOGUE)
-        vals.append(prev_label == PscClass.DIALOGUE_CONTINUED)
-        vals.append(prev_label == PscClass.COMMENT)
-        vals.append(prev_label == PscClass.COMMENT_CONTINUED)
+        vals.append(prev_label == PscClass.CHARACTER.value)
+        vals.append(prev_label == PscClass.CHARACTER_CONTINUED.value)
+        vals.append(prev_label == PscClass.DIRECTION.value)
+        vals.append(prev_label == PscClass.DIRECTION_CONTINUED.value)
+        vals.append(prev_label == PscClass.DIALOGUE.value)
+        vals.append(prev_label == PscClass.DIALOGUE_CONTINUED.value)
+        vals.append(prev_label == PscClass.COMMENT.value)
+        vals.append(prev_label == PscClass.COMMENT_CONTINUED.value)
 
         # ここまでの教師ラベルを使って特徴量を追加
         vals.append(charsheadline_used)
@@ -148,12 +148,40 @@ def predict(juman, tree, lines, normalize=False):
         yield label
         
         # 次ループ以降のための特徴量の更新
-        if label == PscClass.CHARSHEADLINE:
+        if label == PscClass.CHARSHEADLINE.value:
             charsheadline_used = 1
-        if label == PscClass.H1:
+        if label == PscClass.H1.value:
             h1_used = 1
-        if label == PscClass.DIRECTION:
+        if label == PscClass.DIRECTION.value:
             direction_used = 1
-        if label == PscClass.DIALOGUE:
+        if label == PscClass.DIALOGUE.value:
             dialogue_used = 1
         prev_label = label
+
+
+def give_labels(juman, tree, in_file, out_file, normalize=False):
+    '''台本ファイルに予測したラベルをつけて保存する
+    
+    Parameters
+    ----------
+    juman: JumanPsc
+        形態素解析に使う JumanPsc のインスタンス
+    tree : DecisionTreeClassifier
+        予測に使う決定木モデル
+    in_file : str
+        入力ファイル名
+    out_file : str
+        出力ファイル名
+    normalize : bool
+        正規化するかどうか
+    '''
+    
+    with open(in_file, encoding='utf_8_sig') as in_f:
+        # 各行から行の種類を予測して文字列のジェネレータにする
+        lines = [l for l in in_f.readlines()]
+        classes = predict(juman, tree, lines, normalize=normalize)
+        labels = (PscClass(c).name for c in classes)
+        
+    with open(out_file, 'w', encoding='utf_8_sig') as out_f:
+        for line, label in zip(lines, labels):
+            out_f.write(label + '\t' + line)
