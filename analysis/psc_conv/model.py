@@ -126,7 +126,7 @@ def predict(juman, tree, lines, normalize=False):
         # 特徴量から取り出し順に値を取り出したリスト
         vals = [ft[k] for k in ft_keys]
 
-        # 前の行の教師ラベルを使って特徴量を追加
+        # 前の行の予測結果を使って特徴量を追加
         vals.append(prev_label == PscClass.CHARACTER.value)
         vals.append(prev_label == PscClass.CHARACTER_CONTINUED.value)
         vals.append(prev_label == PscClass.DIRECTION.value)
@@ -136,7 +136,7 @@ def predict(juman, tree, lines, normalize=False):
         vals.append(prev_label == PscClass.COMMENT.value)
         vals.append(prev_label == PscClass.COMMENT_CONTINUED.value)
 
-        # ここまでの教師ラベルを使って特徴量を追加
+        # ここまでの予測結果を使って特徴量を追加
         vals.append(charsheadline_used)
         vals.append(h1_used)
         vals.append(direction_used)

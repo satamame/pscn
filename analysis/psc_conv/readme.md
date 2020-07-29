@@ -69,6 +69,8 @@
     - この行と同じ文字列にパターンマッチした行数 (正規化オプション有り)
 1. spc_line_count
     - この行と行頭の空白の数が同じ行の数 (正規化オプション有り)
+1. bracket_line_rate
+    - ファイル全体の '「' を含む行の割合 (小数)
 1. prev_is_CHARACTER
     - 前の行が <登場人物> か (0/1)
 1. prev_is_CHARACTER_CONTINUED

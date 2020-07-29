@@ -26,6 +26,7 @@ ft_keys = ptn_ids + (       # パターンマッチング
     'ptn_line_count',       # この行と同じパターンにマッチした行数
     'str_line_count',       # この行と同じ文字列にパターンマッチした行数
     'spc_line_count',       # この行と行頭の空白の数が同じ行の数
+    'bracket_line_rate',    # ファイル全体の '「' を含む行の割合
 )
 
 
@@ -120,6 +121,9 @@ def params_in_line(juman, line):
     # 「登場人物」を含むか
     params['states_charsheadline'] = ('登場人物' in line)
     
+    # '「' を含むか
+    params['has_bracket'] = ('「' in line)
+    
     return params
 
 
@@ -148,7 +152,7 @@ def features_in_lines(juman, lines, normalize=False):
     
     # 最後に処理した行が空行か
     last_is_empty = True
-    # 最後に処理した行の最後が '」'か
+    # 最後に処理した行の最後が '」' か
     last_ends_w_bracket = False
     # 最後に処理した行の最後が文末文字 (。？?！!) か
     last_sentence_ends = True
@@ -161,6 +165,8 @@ def features_in_lines(juman, lines, normalize=False):
     str_line_count = {}
     # 行頭の空白の数ごとの行数
     spc_line_count = {}
+    # '「' を含む行の数
+    bracket_line_count = 0
     
     for i, l in enumerate(lines):
         line = l.rstrip()
@@ -253,8 +259,15 @@ def features_in_lines(juman, lines, normalize=False):
         else:
             spc_line_count[leading_spc] = 1
     
+        # ファイル全体の '「' を含む行の数をカウント
+        if params['has_bracket']:
+            bracket_line_count += 1
+
     # ファイル全体の行数
     line_cnt = len(line_features)
+    
+    # ファイル全体の '「' を含む行の割合
+    bracket_line_rate = bracket_line_count / line_cnt
     
     # 最後の行に is_last_line をセットする
     line_features[line_cnt - 1]['is_last_line'] = '1'
@@ -295,6 +308,9 @@ def features_in_lines(juman, lines, normalize=False):
                 lf['spc_line_count'] /= line_cnt
         else:
             lf['spc_line_count'] = 0
+        
+        # ファイル全体の '「' を含む行の割合
+        lf['bracket_line_rate'] = bracket_line_rate
     
     return line_features
 
