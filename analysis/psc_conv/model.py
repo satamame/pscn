@@ -176,12 +176,15 @@ def give_labels(juman, tree, in_file, out_file, normalize=False):
         正規化するかどうか
     '''
     
+    # 入力ファイルから行を取り出す
     with open(in_file, encoding='utf_8_sig') as in_f:
-        # 各行から行の種類を予測して文字列のジェネレータにする
         lines = [l for l in in_f.readlines()]
-        classes = predict(juman, tree, lines, normalize=normalize)
-        labels = (PscClass(c).name for c in classes)
+
+    # 各行から行の種類を予測して文字列のジェネレータにする
+    classes = predict(juman, tree, lines, normalize=normalize)
+    labels = (PscClass(c).name for c in classes)
         
+    # 出力ファイルにラベル付きの行を書き出す
     with open(out_file, 'w', encoding='utf_8_sig') as out_f:
         for line, label in zip(lines, labels):
             out_f.write(label + '\t' + line)

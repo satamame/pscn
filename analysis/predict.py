@@ -3,8 +3,7 @@
 
 import os
 import pickle
-from psc_conv import JumanPsc
-from psc_conv import model
+from psc_conv import JumanPsc, model
 from juman_settings import JUMAN_COMMAND, JUMAN_OPTION
 
 # 入力ディレクトリ
