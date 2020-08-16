@@ -31,7 +31,7 @@ active_classes = {
 default_class = PscClass.COMMENT.value
 
 # 決定木の深度
-max_depth = 20
+max_depth = 13
 
 # 相対パスを絶対パスに
 targets_dir = os.path.join(os.path.dirname(__file__), targets_dir)
