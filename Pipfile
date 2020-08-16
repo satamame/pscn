@@ -12,6 +12,7 @@ jupyter = "*"
 pandas = "*"
 openpyxl = "*"
 scikit-learn = "*"
+pydotplus = "*"
 
 [requires]
 python_version = "3.8"
