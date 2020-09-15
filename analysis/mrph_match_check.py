@@ -1,7 +1,7 @@
 '''形態素列マッチングを単品で実行して確認する
 '''
 
-from psc_conv import JumanPsc, MrphMatch, MRPH_MTCH_PTN
+from psc_parse import JumanPsc, MrphMatch, MRPH_MTCH_PTN
 from juman_settings import *
 
 

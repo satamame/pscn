@@ -13,6 +13,7 @@ openpyxl = "*"
 scikit-learn = "*"
 pydotplus = "*"
 pyknp = "==0.4.1"
+psc-parse = {git = "https://github.com/satamame/psc_parse"}
 
 [requires]
 python_version = "3.8"

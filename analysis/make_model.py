@@ -1,8 +1,8 @@
 import os
 import pickle
 from sklearn.metrics import accuracy_score, classification_report
-from psc_conv import JumanPsc, model
-from psc_conv import get_dataset, make_model, PscClass
+from psc_parse import JumanPsc, model
+from psc_parse import get_dataset, make_model, PscClass
 from juman_settings import JUMAN_COMMAND, JUMAN_OPTION
 
 
@@ -31,7 +31,7 @@ active_classes = {
 default_class = PscClass.COMMENT.value
 
 # 決定木の深度
-max_depth = 13
+max_depth = 14
 
 # 相対パスを絶対パスに
 targets_dir = os.path.join(os.path.dirname(__file__), targets_dir)

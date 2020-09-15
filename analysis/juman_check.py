@@ -1,7 +1,7 @@
 '''JumanPsc の形態素解析を単品の文字列で試す
 '''
 
-from psc_conv import JumanPsc
+from psc_parse import JumanPsc
 from juman_settings import JUMAN_COMMAND, JUMAN_OPTION
 
 

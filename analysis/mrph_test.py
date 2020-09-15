@@ -2,7 +2,7 @@
 '''
 
 import os
-from psc_conv import JumanPsc, mrph_test_dir
+from psc_parse import JumanPsc, mrph_test_dir
 from juman_settings import *
 
 

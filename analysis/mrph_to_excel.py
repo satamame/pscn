@@ -4,7 +4,7 @@
 import os
 import pandas as pd
 import openpyxl
-from psc_conv import JumanPsc
+from psc_parse import JumanPsc
 from juman_settings import *
 
 

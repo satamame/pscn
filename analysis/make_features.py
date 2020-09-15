@@ -2,7 +2,7 @@
 '''
 
 import os
-from psc_conv import JumanPsc, make_features
+from psc_parse import JumanPsc, make_features
 from juman_settings import JUMAN_COMMAND, JUMAN_OPTION
 
 
