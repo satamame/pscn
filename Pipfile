@@ -7,12 +7,12 @@ verify_ssl = true
 rope = "*"
 
 [packages]
-pyknp = "*"
 jupyter = "*"
 pandas = "*"
 openpyxl = "*"
 scikit-learn = "*"
 pydotplus = "*"
+pyknp = "==0.4.1"
 
 [requires]
 python_version = "3.8"
